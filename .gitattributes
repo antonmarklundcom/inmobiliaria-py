@@ -1,0 +1,3 @@
+# Exclude bundled Claude Code skill reference files from GitHub's
+# language-detection stats — they're vendored docs/scripts, not app code.
+.claude/** linguist-vendored
