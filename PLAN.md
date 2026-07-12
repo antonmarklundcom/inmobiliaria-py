@@ -31,7 +31,7 @@ Custom Next.js real estate platform + cinematic scroll-world hero. Plan only —
 
 ## 3. Tech stack
 
-- **Next.js 15 (latest stable 15.x), App Router, TypeScript, Tailwind CSS v4.** Server components for all SEO surfaces; server actions for admin CRUD.
+- **Next.js 16.2.10** (scaffolded via `create-next-app@latest` 2026-07-12 — newer than the 15.x assumed when this plan was drafted; using it since it's current stable), **App Router, TypeScript, Tailwind CSS v4.** Server components for all SEO surfaces; server actions for admin CRUD.
 - **Database: Hostinger MySQL + Drizzle ORM** (recommended over Neon/Prisma).
   - Live app connects via `localhost` on the same infra — no cross-network dependency, no Neon-IPv6-on-Hostinger failure mode.
   - Deploy skill §6a has the verified playbook (Remote MySQL whitelisting, `$env:DATABASE_URL` + `npx tsx` for seeds, password-change gotcha).
@@ -70,7 +70,28 @@ robots.txt · sitemap.xml (dynamic from DB) · OG images per listing
 - Voseo everywhere: "Escribinos", "Agendá una visita", "Consultá", "Vendé tu propiedad", "Encontrá tu próxima propiedad".
 - WhatsApp: floating button all pages, `wa.me/595…?text=` prefilled per listing ("Hola, vi [REF-código] en inmobiliaria.com.py…") so you know which listing converted.
 
-## 5. Brand & design direction
+## 5. Brand & design direction — LOCKED 2026-07-12
+
+**Winner: B — Petrol + gold.** Tokens implemented in `app/globals.css` / Tailwind theme:
+
+| Token | Hex | Use |
+|---|---|---|
+| `--color-ink` | `#14303B` | Dark petrol base — hero bg, header text |
+| `--color-ink-deep` | `#0C1F26` | Darkest shade — button text on gold |
+| `--color-surface` | `#F4F1EA` | Off-white — light section backgrounds |
+| `--color-surface-alt` | `#ECE6D8` | Slightly deeper cream — card backgrounds |
+| `--color-gold` | `#B99457` | Accent — CTAs, links, highlights |
+| `--color-gold-deep` | `#9C7C42` | Gold hover state |
+| `--color-text-on-dark` | `#F4F1EA` | Text on ink backgrounds |
+| `--color-text-on-light` | `#14303B` | Text on surface backgrounds |
+| `--color-text-muted` | `#5A6F76` | Secondary text |
+
+Typography: **Fraunces** (display serif, headlines) + **Inter** (UI/body), both via `next/font/google`. Verified rendering in dev preview 2026-07-12.
+
+**Style preamble for scroll-world (Phase 5), updated with this palette:**
+> Photorealistic cinematic aerial/steadicam footage, golden-hour light, anamorphic feel, gentle atmospheric haze, rich foliage, no people, no text, no logos. Color grading: dark petrol blue undertones in shadow, warm off-white/cream highlights, muted gold accents in the light — classic luxury-realty grading.
+
+<details><summary>Original 3-way comparison prompts (for reference)</summary>
 
 **Step 1 (you):** run these three prompts in Claude Design, pick a winner (or a blend). Short, color-focused, as requested:
 
@@ -84,6 +105,8 @@ robots.txt · sitemap.xml (dynamic from DB) · OG images per listing
 > Landing page hero and property-card grid for "Inmobiliaria.com.py", premium real estate in Asunción, Paraguay. Color scheme: near-black charcoal #1C1B19 base, warm gray #E7E2DA surfaces, terracotta accent #C6683F. Modern architectural minimalism, large display type. Spanish copy: hero "Encontrá tu próxima propiedad en Asunción", WhatsApp CTA "Escribinos".
 
 **Step 2 (me):** extract the winning kit → 4–6 named hex tokens + typography (proposal: Fraunces or Playfair Display for display serif, Inter for UI/body) → becomes the scroll-world style preamble palette AND the Tailwind theme.
+
+</details>
 
 **Design patterns** (from the lead-gen menu, deliberately limited): split-screen listing cards, big-type editorial headings on hubs, scroll-triggered reveals below the hero. No bento, no glassmorphism — premium restraint.
 
@@ -150,7 +173,19 @@ Real listing data, photos, agency NAP (phone +595 9XX XXX XXX, address, hours, s
 7. Post-deploy checklist: login with rotated real admin creds, one test listing write from live admin, robots/sitemap reachable, WhatsApp links fire with prefill, slot recorded.
 8. If DB password ever changes: update hPanel `DATABASE_URL` too, then redeploy — the live app crashes silently otherwise ("Application error"/Digest page).
 
-## 10. Open items needing you
+## 10. Sister site: realestateinparaguay.com (added 2026-07-12)
+
+This DB is the **source of truth** for an English international storefront (plan: `C:\Claude 1\realestateinparaguay-com\PLAN.md`, §5a lists the exact spec). Work that lands in THIS repo, scheduled on top of Phase 4:
+
+1. `listing_translations` table (`listing_id, locale, title, description, seo_*, slug, whatsapp_message, translation_status, source_hash, translated_at`).
+2. Translation server action on publish/update (Claude API drafts EN; admin reviews).
+3. Token-protected `GET /api/export/listings?locale=en` (listings + translations + Cloudinary IDs + FX/settings).
+4. `POST /api/leads` accepting external `source: 'reip'`; leads inbox gains a source column.
+5. Fire-and-forget revalidate ping to the EN site after listing/translation writes.
+
+The scroll-world hero clips are shared: whichever site generates them first, the other copies `public/scroll-world/` wholesale (clips contain no text/people/logos).
+
+## 11. Open items needing you
 
 1. Run the 3 Claude Design prompts (§5) and pick a direction.
 2. Agency facts: WhatsApp number (+595…), address/NAP, socials, Google Business Profile status.
